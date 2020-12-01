@@ -1,0 +1,5 @@
+{
+    "cmake.sourceDirectory": "${workspaceFolder}/.",
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "args": ["mac_input-utf-16_keep.txt mac_output-utf-16_keep.txt 123"]
+}

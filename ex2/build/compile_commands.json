@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/omer/BIU/ComputerStruct/computerStruct/ex2/build",
+  "command": "/bin/gcc-9   -g   -o CMakeFiles/test1.dir/ex2.c.o   -c /home/omer/BIU/ComputerStruct/computerStruct/ex2/ex2.c",
+  "file": "/home/omer/BIU/ComputerStruct/computerStruct/ex2/ex2.c"
+}
+]

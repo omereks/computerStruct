@@ -66,6 +66,7 @@ unsigned long put_byte(unsigned long x, unsigned char b, int i){
     //mooving the pointer i chars
     ptrChar += i;
     //replace the value of thr pointer into b
+}
     *ptrChar = b;
     return x;
 }

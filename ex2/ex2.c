@@ -96,25 +96,32 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 		//windows to unix:
 		if ((strcmp(sysInput,"-win") == 0) && (strcmp(sysOutput,"-unix") == 0))
 		{
+			int i = 1;
 			while (fread(buffer, 1 , sizeof(buffer), fileInput) > 0)
 			{
+				if((buffer[0] == 0x00 ) && (buffer[1] == 0x0d) && (isLittleEndian == 1)){
+					i = fread(buffer, 1 , sizeof(buffer), fileInput);
+				}
+				if((buffer[0] == 0x0d ) && (buffer[1] == 0x00) && (isLittleEndian == 0)){
+					i = fread(buffer, 1 , sizeof(buffer), fileInput);
+				}
 				//big endian
 				if ((buffer[0] == 0x00 ) && (buffer[1] == 0x0d) && (isLittleEndian == 1))
 				{
 					char nextBuffer[2];
-					fread(nextBuffer, 1 , sizeof(nextBuffer), fileInput);
+					i = fread(nextBuffer, 1 , sizeof(nextBuffer), fileInput);
 					if ((nextBuffer[0] == 0x00 ) && (nextBuffer[1] == 0x0a))
 					{
 						if (strcmp(KeepOrSwap, "-keep") == 0)
 						{
 							fwrite(nextBuffer, 1, sizeof(nextBuffer), fileOutput);
-							fread(buffer, 1 , sizeof(nextBuffer), fileInput);
+							i = fread(buffer, 1 , sizeof(nextBuffer), fileInput);
 						}
 						else if (strcmp(KeepOrSwap, "-swap") == 0)
 						{
 							charSwap(&nextBuffer[0], &nextBuffer[1]);
 							fwrite(nextBuffer, 1, sizeof(nextBuffer), fileOutput);
-							fread(buffer, 1 , sizeof(nextBuffer), fileInput);
+							i = fread(buffer, 1 , sizeof(nextBuffer), fileInput);
 						}
 					}
 				}
@@ -125,33 +132,37 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 				if ((buffer[0] == 0x0d ) && (buffer[1] == 0x00) && (isLittleEndian == 0))
 				{
 					char nextBuffer[2];
-					fread(nextBuffer, 1 , sizeof(nextBuffer), fileInput);
+					i = fread(nextBuffer, 1 , sizeof(nextBuffer), fileInput);
 					if ((nextBuffer[0] == 0x0a ) && (nextBuffer[1] == 0x00))
 					{
 						if (strcmp(KeepOrSwap, "-keep") == 0)
 						{
 							fwrite(nextBuffer, 1, sizeof(nextBuffer), fileOutput);
-							fread(buffer, 1 , sizeof(nextBuffer), fileInput);
+							i = fread(buffer, 1 , sizeof(nextBuffer), fileInput);
 						}
 						else if (strcmp(KeepOrSwap, "-swap") == 0)
 						{
 							charSwap(&nextBuffer[0], &nextBuffer[1]);
 							fwrite(nextBuffer, 1, sizeof(nextBuffer), fileOutput);
-							fread(buffer, 1 , sizeof(nextBuffer), fileInput);
+							i = fread(buffer, 1 , sizeof(nextBuffer), fileInput);
 						}
 					}
 				}
-
-				//if its not end of the line
-				if (strcmp(KeepOrSwap, "-keep") == 0)
+				if (i > 0)
 				{
-					fwrite(buffer, 1, sizeof(buffer), fileOutput);
+					//if its not end of the line
+					if (strcmp(KeepOrSwap, "-keep") == 0)
+					{
+						fwrite(buffer, 1, sizeof(buffer), fileOutput);
+					}
+					else if (strcmp(KeepOrSwap, "-swap") == 0)
+					{
+						charSwap(&buffer[0], &buffer[1]);
+						fwrite(buffer, 1, sizeof(buffer), fileOutput);
+					}
 				}
-				else if (strcmp(KeepOrSwap, "-swap") == 0)
-				{
-					charSwap(&buffer[0], &buffer[1]);
-					fwrite(buffer, 1, sizeof(buffer), fileOutput);
-				}
+				
+				
 			}
 			fclose(fileInput);
 			fclose(fileOutput);
@@ -163,25 +174,33 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 		//windows to mac:
 		if ((strcmp(sysInput,"-win") == 0) && (strcmp(sysOutput,"-mac") == 0))
 		{
+			int i = 1;
 			while (fread(buffer, 1 , sizeof(buffer), fileInput) > 0)
 			{
+				if((buffer[0] == 0x00 ) && (buffer[1] == 0x0a) && (isLittleEndian == 1)){
+					i = fread(buffer, 1 , sizeof(buffer), fileInput);
+				}
+				if((buffer[0] == 0x0a ) && (buffer[1] == 0x00) && (isLittleEndian == 0)){
+					i = fread(buffer, 1 , sizeof(buffer), fileInput);
+				}
+				
 				//big endian
 				if ((buffer[0] == 0x00 ) && (buffer[1] == 0x0d) && (isLittleEndian == 1))
 				{
 					char nextBuffer[2];
-					fread(nextBuffer, 1 , sizeof(nextBuffer), fileInput);
+					i = fread(nextBuffer, 1 , sizeof(nextBuffer), fileInput);
 					if ((nextBuffer[0] == 0x00 ) && (nextBuffer[1] == 0x0a))
 					{
 						if (strcmp(KeepOrSwap, "-keep") == 0)
 						{
 							fwrite(buffer, 1, sizeof(buffer), fileOutput);
-							fread(buffer, 1 , sizeof(buffer), fileInput);
+							i = fread(buffer, 1 , sizeof(buffer), fileInput);
 						}
 						else if (strcmp(KeepOrSwap, "-swap") == 0)
 						{
 							charSwap(&buffer[0], &buffer[1]);
 							fwrite(buffer, 1, sizeof(buffer), fileOutput);
-							fread(buffer, 1 , sizeof(buffer), fileInput);
+							i = fread(buffer, 1 , sizeof(buffer), fileInput);
 						}
 					}
 				}
@@ -192,33 +211,38 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 				if ((buffer[0] == 0x0d ) && (buffer[1] == 0x00) && (isLittleEndian == 0))
 				{
 					char nextBuffer[2];
-					fread(nextBuffer, 1 , sizeof(nextBuffer), fileInput);
+					i = fread(nextBuffer, 1 , sizeof(nextBuffer), fileInput);
 					if ((nextBuffer[0] == 0x0a ) && (nextBuffer[1] == 0x00))
 					{
 						if (strcmp(KeepOrSwap, "-keep") == 0)
 						{
 							fwrite(buffer, 1, sizeof(buffer), fileOutput);
-							fread(buffer, 1 , sizeof(buffer), fileInput);
+							i = fread(buffer, 1 , sizeof(buffer), fileInput);
 						}
 						else if (strcmp(KeepOrSwap, "-swap") == 0)
 						{
 							charSwap(&buffer[0], &buffer[1]);
 							fwrite(buffer, 1, sizeof(buffer), fileOutput);
-							fread(buffer, 1 , sizeof(buffer), fileInput);
+							i = fread(buffer, 1 , sizeof(buffer), fileInput);
 						}
 					}
 				}
 
 				//if its not end of the line
-				if (strcmp(KeepOrSwap, "-keep") == 0)
+				if (i > 0)
 				{
-					fwrite(buffer, 1, sizeof(buffer), fileOutput);
+					if (strcmp(KeepOrSwap, "-keep") == 0)
+					{
+						fwrite(buffer, 1, sizeof(buffer), fileOutput);
+					}
+					else if (strcmp(KeepOrSwap, "-swap") == 0)
+					{
+						charSwap(&buffer[0], &buffer[1]);
+						fwrite(buffer, 1, sizeof(buffer), fileOutput);
+					}/* code */
 				}
-				else if (strcmp(KeepOrSwap, "-swap") == 0)
-				{
-					charSwap(&buffer[0], &buffer[1]);
-					fwrite(buffer, 1, sizeof(buffer), fileOutput);
-				}
+				
+				
 			}
 			fclose(fileInput);
 			fclose(fileOutput);

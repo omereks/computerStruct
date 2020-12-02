@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
-#define BOMF (char)0xff;
-#define BOMS (char)0xfe;
+#define BOMF (char)0xff
+#define BOMS (char)0xfe
 
 
 /**creating int i = 1 wich is 0x1 and then creating a char pointer to point the first byte of i
@@ -10,12 +10,13 @@
  *
  * @return 0 if our system is Littel Endian else return 1
  */
-int is_big_endian(const char* bom) {
+int is_little_endian(char* bom) {
     // check the bom if it fffe or feff
-	if (bom[0] == 0xff && bom[1] == 0xfe) {
-        return 0;
+	
+	if ((char)bom[0] == (char)0xfe && (char)bom[1] == (char)0xff) {
+	 	return 1;
     }
-    return 1;
+    return 0;
 }
 
 void charSwap(char* a, char* b){
@@ -57,9 +58,10 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 	}
 	
 	char buffer[2];
-    FILE *fileInput, *fileOutput;
-    fileInput = fopen(fileNameInput, "rb");
-	fileOutput = fopen(fileNameOutput, "wb");
+    FILE *fileInput = fopen(fileNameInput, "rb");
+	FILE *fileOutput = fopen(fileNameOutput, "wb");
+     
+
 	
 	char windowsEndBig[4];
 	windowsEndBig[0]=0x00;
@@ -74,9 +76,9 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 	windowsEndLittle[2]=0x0a;
 	windowsEndLittle[3]=0x00;
 
-	fread(buffer, 1, sizeof(buffer), fileInput);
-	int isBigEndian = is_big_endian(buffer);		
-	
+	int c = fread(buffer, 1, sizeof(buffer), fileInput);
+	int isLittleEndian = is_little_endian(buffer);		
+	//printf ("%d /n/n/n", isLittleEndian);
 	if (strcmp(KeepOrSwap, "-keep") == 0)
 	{
 		fwrite(buffer, 1, sizeof(buffer), fileOutput);	}
@@ -97,11 +99,11 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 			while (fread(buffer, 1 , sizeof(buffer), fileInput) > 0)
 			{
 				//big endian
-				if ((buffer[0] == 0x00 ) && (buffer[1] == 0x0d) && (isBigEndian == 1))
+				if ((buffer[0] == 0x00 ) && (buffer[1] == 0x0d) && (isLittleEndian == 1))
 				{
 					char nextBuffer[2];
 					fread(nextBuffer, 1 , sizeof(nextBuffer), fileInput);
-					if ((nextBuffer[0] == 0x00 ) && (nextBuffer[1] == 0x0a) && (isBigEndian == 1))
+					if ((nextBuffer[0] == 0x00 ) && (nextBuffer[1] == 0x0a))
 					{
 						if (strcmp(KeepOrSwap, "-keep") == 0)
 						{
@@ -120,11 +122,11 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 
 
 				//littel endian
-				if ((buffer[0] == 0x0d ) && (buffer[1] == 0x00) && (isBigEndian == 0))
+				if ((buffer[0] == 0x0d ) && (buffer[1] == 0x00) && (isLittleEndian == 0))
 				{
 					char nextBuffer[2];
 					fread(nextBuffer, 1 , sizeof(nextBuffer), fileInput);
-					if ((nextBuffer[0] == 0x0a ) && (nextBuffer[1] == 0x00) && (isBigEndian == 0))
+					if ((nextBuffer[0] == 0x0a ) && (nextBuffer[1] == 0x00))
 					{
 						if (strcmp(KeepOrSwap, "-keep") == 0)
 						{
@@ -157,14 +159,14 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 		}
 		
 
-
+		
 		//windows to mac:
 		if ((strcmp(sysInput,"-win") == 0) && (strcmp(sysOutput,"-mac") == 0))
 		{
 			while (fread(buffer, 1 , sizeof(buffer), fileInput) > 0)
 			{
 				//big endian
-				if ((buffer[0] == 0x00 ) && (buffer[1] == 0x0d) && (isBigEndian == 0))
+				if ((buffer[0] == 0x00 ) && (buffer[1] == 0x0d) && (isLittleEndian == 1))
 				{
 					char nextBuffer[2];
 					fread(nextBuffer, 1 , sizeof(nextBuffer), fileInput);
@@ -173,13 +175,13 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 						if (strcmp(KeepOrSwap, "-keep") == 0)
 						{
 							fwrite(buffer, 1, sizeof(buffer), fileOutput);
-							fread(buffer, 1 , sizeof(nextBuffer), fileInput);
+							fread(buffer, 1 , sizeof(buffer), fileInput);
 						}
 						else if (strcmp(KeepOrSwap, "-swap") == 0)
 						{
 							charSwap(&buffer[0], &buffer[1]);
 							fwrite(buffer, 1, sizeof(buffer), fileOutput);
-							fread(buffer, 1 , sizeof(nextBuffer), fileInput);
+							fread(buffer, 1 , sizeof(buffer), fileInput);
 						}
 					}
 				}
@@ -187,7 +189,7 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 
 
 				//littel endian
-				if ((buffer[0] == 0x0d ) && (buffer[1] == 0x00) && (isBigEndian == 1))
+				if ((buffer[0] == 0x0d ) && (buffer[1] == 0x00) && (isLittleEndian == 0))
 				{
 					char nextBuffer[2];
 					fread(nextBuffer, 1 , sizeof(nextBuffer), fileInput);
@@ -196,13 +198,13 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 						if (strcmp(KeepOrSwap, "-keep") == 0)
 						{
 							fwrite(buffer, 1, sizeof(buffer), fileOutput);
-							fread(buffer, 1 , sizeof(nextBuffer), fileInput);
+							fread(buffer, 1 , sizeof(buffer), fileInput);
 						}
 						else if (strcmp(KeepOrSwap, "-swap") == 0)
 						{
 							charSwap(&buffer[0], &buffer[1]);
 							fwrite(buffer, 1, sizeof(buffer), fileOutput);
-							fread(buffer, 1 , sizeof(nextBuffer), fileInput);
+							fread(buffer, 1 , sizeof(buffer), fileInput);
 						}
 					}
 				}
@@ -228,40 +230,48 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 		{
 			while (fread(buffer, 1 , sizeof(buffer), fileInput) > 0)
 			{
+				int flagMW = 1;
 				//big endian
-				if ((buffer[0] == 0x00 ) && (buffer[1] == 0x0d) && (isBigEndian == 0))
+				if ((buffer[0] == 0x00 ) && (buffer[1] == 0x0d) && (isLittleEndian == 1))
 				{
 					if (strcmp(KeepOrSwap, "-keep") == 0)
 					{
 						fwrite(windowsEndBig, 1, sizeof(windowsEndBig), fileOutput);
+						flagMW = 0;
 					}
 					else if (strcmp(KeepOrSwap, "-swap") == 0)
 					{
 						fwrite(windowsEndLittle, 1, sizeof(windowsEndLittle), fileOutput);
+						flagMW = 0;
 					}
 					
 				}
 				//littel endian
-				if ((buffer[0] == 0x0d ) && (buffer[1] == 0x00) && (isBigEndian == 1))
+				if ((buffer[0] == 0x0d ) && (buffer[1] == 0x00) && (isLittleEndian == 0))
 				{
 					if (strcmp(KeepOrSwap, "-keep") == 0)
 					{
 						fwrite(windowsEndLittle, 1, sizeof(windowsEndLittle), fileOutput);
+						flagMW = 0;
 					}
 					else if (strcmp(KeepOrSwap, "-swap") == 0)
 					{
 						fwrite(windowsEndBig, 1, sizeof(windowsEndBig), fileOutput);
+						flagMW = 0;
 					}
 				}
 				//if its not end of the line
-				if (strcmp(KeepOrSwap, "-keep") == 0)
+				if (flagMW == 1)
 				{
-					fwrite(buffer, 1, sizeof(buffer), fileOutput);
-				}
-				else if (strcmp(KeepOrSwap, "-swap") == 0)
-				{
-					charSwap(&buffer[0], &buffer[1]);
-					fwrite(buffer, 1, sizeof(buffer), fileOutput);
+					if (strcmp(KeepOrSwap, "-keep") == 0)
+					{
+						fwrite(buffer, 1, sizeof(buffer), fileOutput);
+					}
+					else if (strcmp(KeepOrSwap, "-swap") == 0)
+					{
+						charSwap(&buffer[0], &buffer[1]);
+						fwrite(buffer, 1, sizeof(buffer), fileOutput);
+					}
 				}
 			}
 			fclose(fileInput);
@@ -274,40 +284,48 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 		{
 			while (fread(buffer, 1 , sizeof(buffer), fileInput) > 0)
 			{
+				int flagUW = 0;
 				//big endian
-				if ((buffer[0] == 0x00 ) && (buffer[1] == 0x0a) && (isBigEndian == 0))
+				if ((buffer[0] == 0x00 ) && (buffer[1] == 0x0a) && (isLittleEndian == 1))
 				{
 					if (strcmp(KeepOrSwap, "-keep") == 0)
 					{
 						fwrite(windowsEndBig, 1, sizeof(windowsEndBig), fileOutput);
+						flagUW = 1;
 					}
 					else if (strcmp(KeepOrSwap, "-swap") == 0)
 					{
 						fwrite(windowsEndLittle, 1, sizeof(windowsEndLittle), fileOutput);
+						flagUW = 1;
 					}
 					
 				}
 				//littel endian
-				if ((buffer[0] == 0x0a ) && (buffer[1] == 0x00) && (isBigEndian == 1))
+				if ((buffer[0] == 0x0a ) && (buffer[1] == 0x00) && (isLittleEndian == 0))
 				{
 					if (strcmp(KeepOrSwap, "-keep") == 0)
 					{
 						fwrite(windowsEndLittle, 1, sizeof(windowsEndLittle), fileOutput);
+						flagUW = 1;
 					}
 					else if (strcmp(KeepOrSwap, "-swap") == 0)
 					{
 						fwrite(windowsEndBig, 1, sizeof(windowsEndBig), fileOutput);
+						flagUW = 1;
 					}
 				}
 				//if its not end of the line
-				if (strcmp(KeepOrSwap, "-keep") == 0)
+				if(flagUW == 0)
 				{
-					fwrite(buffer, 1, sizeof(buffer), fileOutput);
-				}
-				else if (strcmp(KeepOrSwap, "-swap") == 0)
-				{
-					charSwap(&buffer[0], &buffer[1]);
-					fwrite(buffer, 1, sizeof(buffer), fileOutput);
+						if (strcmp(KeepOrSwap, "-keep") == 0)
+					{
+						fwrite(buffer, 1, sizeof(buffer), fileOutput);
+					}
+					else if (strcmp(KeepOrSwap, "-swap") == 0)
+					{
+						charSwap(&buffer[0], &buffer[1]);
+						fwrite(buffer, 1, sizeof(buffer), fileOutput);
+					}
 				}
 			}
 			fclose(fileInput);
@@ -324,11 +342,13 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 	{
 		while (fread(buffer, 1 , sizeof(buffer), fileInput) > 0)
 		{
-			if ((buffer[0] == 0x00 ) && (buffer[1] == 0x0d) && (isBigEndian == 0))
+			//for big
+			if ((buffer[0] == 0x00 ) && (buffer[1] == 0x0d) && (isLittleEndian == 1))
 			{
 				buffer[1] = 0x0a;
 			}
-			if ((buffer[1] == 0x00 ) && (buffer[0] == 0x0d) && (isBigEndian == 1))
+			//for little
+			if ((buffer[0] == 0x0d ) && (buffer[1] == 0x00) && (isLittleEndian == 0))
 			{
 				buffer[0] = 0x0a;
 			}
@@ -351,11 +371,13 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 	{
 		while (fread(buffer, 1 , sizeof(buffer), fileInput) > 0)
 		{
-			if ((buffer[0] == 0x00 ) && (buffer[1] == 0x0a) && (isBigEndian == 1))
+			//for big
+			if ((buffer[0] == 0x00 ) && (buffer[1] == 0x0a) && (isLittleEndian == 1))
 			{
 				buffer[1] = 0x0d;
 			}
-			if ((buffer[1] == 0x00 ) && (buffer[0] == 0x0a) && (isBigEndian == 0))
+			//for little
+			if ((buffer[0] == 0x0a ) && (buffer[1] == 0x00) && (isLittleEndian == 0))
 			{
 				buffer[0] = 0x0d;
 			}
@@ -378,6 +400,8 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 }
 
 int main(int argc, char* argv[]){
+
+	//copyFileToFile2("./unix_input-utf-16.txt", "stest_win_to_unix_swap.txt", "-win", "-unix", "-keep");
 
 	FILE *fileInput, *fileOutput;
 	//check that the argument ar correct
@@ -406,6 +430,5 @@ int main(int argc, char* argv[]){
 	{
 		copyFileToFile2(argv[1], argv[2], argv[3], argv[4], argv[5]);
 	}
-
     return 0;
 }

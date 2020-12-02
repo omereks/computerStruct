@@ -9,12 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${fileDirname}/${fileBasenameNoExtension}",
-
-
-            "args": ["mac_input-utf-16_keep.txt mac_output-utf-16_keep.txt"],
-
-
-
+            "args": ["mac_input-utf-16_keep.txt", "mac_output-utf-16_keep.txt", "-mac", "-unix"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

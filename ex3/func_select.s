@@ -1,24 +1,26 @@
+.data
 
-	.section	.rodata	
+
+.section	.rodata	
 formatInvalid:	.string	"invalid option!\n"
 format5060:	    .string	"first pstring length: %d, second pstring length: %d\n"
 format52:	    .string	"old char: %c,new char: %c, first string: %s, second string: %s\n"
 format5354:	    .string	"length: %d, string: %s\n"
 format55:	    .string	"compare result: %d\n"
 
+.align 8
 .Jtable:
-    .long   .J50    # 50/60
-    .long   .Jin    # 51 invalid
-    .long   .J52    # 52    
-    .long   .J53    # 53
-    .long   .J54    # 54
-    .long   .J55    # 55
-    .long   .Jin     # 56 invalid
-    .long   .Jin    # 57 invalid
-    .long   .Jin    # 58 invalid
-    .long   .Jin    # 59 invalid
-    .long   .J50    # 50/60
-
+    .quad   .J50    # 50/60
+    .quad   .Jin    # 51 invalid
+    .quad   .J52    # 52  
+    .quad   .J53    # 53
+    .quad   .J54    # 54
+    .quad   .J55    # 55
+    .quad   .Jin    # 56 invalid
+    .quad   .Jin    # 57 invalid
+    .quad   .Jin    # 58 invalid
+    .quad   .Jin    # 59 invalid
+    .quad   .J50    # 50/60
 
 	########
 
@@ -31,16 +33,16 @@ format55:	    .string	"compare result: %d\n"
 run_func:	# the main function:
 	pushq	%rbp		# save the old frame pointer
 	movq	%rsp, %rbp	# create the new frame pointer
-	pushq	%rbx		# saving a callee save register.
+	
 
 	# rdi is thr option number 50/60 52 53 54 55 else
     # rsi is pstring1
     # rdx is pstring2
-    pushq   %rdi
-    subq    $50, %rdi
+    leaq    -50(%rdi), %rdi   # rdi = rdi -50  -> getting [0,10]
     cmpq    $10, %rdi
     ja      .Jin
-    jmp     *.Jtable(,%rdi,4)
+    # leaq    (%rbp, %rdi, 8), %rsp
+    jmp     *.Jtable(,%rdi,8)
     
 
 	movq	%rbp, %rsp	# restore the old stack pointer - release all used memory.
@@ -48,11 +50,40 @@ run_func:	# the main function:
 	ret			# return to caller function (OS).		
 
 
+
+
+
+
 .J50:    # 50/60
+    movq    $format5060, %rdi   # first arg
+
+    movq    $0, %rcx            # getting the first byte for arg2 
+    movq    (%rsi),%rsi
+    movb    %sil, %cl
+    movq    $0, %rsi
+    movq    %rcx,%rsi
+
+    movq    $0, %rcx            # getting the first byte for arg3
+    movq    (%rdx),%rdx
+    movb    %dl, %cl
+    movq    $0, %rdx
+    movq    %rcx,%rdx
+    
+    movq    $0, %rax
+    call   printf
+    leave
+    ret
+
+
 .J52:    # 52    
+    leave
+    ret
 .J53:    # 53
 .J54:    # 54
 .J55:    # 55
+
+
+
 .Jin:    # 51 invalid default
     movq    $formatInvalid, %rdi
     movq	$0, %rax

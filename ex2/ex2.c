@@ -1,37 +1,45 @@
+// 312350192 Omer Eckstein
 #include <stdio.h>
 #include <string.h>
-#define BOMF (char)0xff
-#define BOMS (char)0xfe
 
-
-/**creating int i = 1 wich is 0x1 and then creating a char pointer to point the first byte of i
- * if it was little endian the first byte should be 0x01 = 1
- * if it was big endian the first byte should be 0x00 = 0
+/**
+ * check if the the txt is in big or little endian by the BOM
  *
- * @return 0 if our system is Littel Endian else return 1
+ * @return 0 if our system is big Endian else return 1
  */
 int is_little_endian(char* bom) {
     // check the bom if it fffe or feff
-	
 	if ((char)bom[0] == (char)0xfe && (char)bom[1] == (char)0xff) {
 	 	return 1;
     }
     return 0;
 }
-
+/**
+ * @brief swaping chars by pointer 
+ * 
+ * @param a the first char
+ * @param b the second char
+ */
 void charSwap(char* a, char* b){
     char temp = *a;
     *a = *b;
     *b = temp;
 }
 
+/**
+ * @brief first method for copying file into onther on the same OS
+ * 
+ * @param fileNameInput the name of the input file
+ * @param fileNameOutput the name of the output file
+ * @param KeepOrSwap is either "-keep" or "-swap"
+ */
 void copyFileToFile(char* fileNameInput, char* fileNameOutput, char* KeepOrSwap){
 	char buffer[2];
 	char newBuffer[2];
     FILE *fileInput, *fileOutput;
     fileInput = fopen(fileNameInput, "rb");
 	fileOutput = fopen(fileNameOutput, "wb");
-    
+	//overing the input file and copy it into the output file
 	while (fread(buffer, 1 , sizeof(buffer), fileInput) > 0)
 	{
 		if (strcmp(KeepOrSwap, "-keep") == 0)
@@ -49,6 +57,23 @@ void copyFileToFile(char* fileNameInput, char* fileNameOutput, char* KeepOrSwap)
 	return;
 }
 
+/**
+ * @brief for the second and third methods, i divided to cases:
+ * 1. the same OS - sending to the first method
+ * 2. windows to unix
+ * 3. windows to mac
+ * 4. mac to windows
+ * 5. unix to windows
+ * 6. mac to unix
+ * 7. unix to mac
+ * in every case above i divded by big an little endian, and then dvided again into keep or swap
+ * 
+ * @param fileNameInput the name of the input file
+ * @param fileNameOutput the name of the output file
+ * @param sysInput the inputs OS its either "-mac", "-unix", "-win"
+ * @param sysOutput the output OS its either "-mac", "-unix", "-win"
+ * @param KeepOrSwap is either "-keep" or "-swap"
+ */
 void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, char* sysOutput, char* KeepOrSwap){
 	//is the same OS
 	if (strcmp(sysInput,sysOutput) == 0)
@@ -78,7 +103,7 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 
 	int c = fread(buffer, 1, sizeof(buffer), fileInput);
 	int isLittleEndian = is_little_endian(buffer);		
-	//printf ("%d /n/n/n", isLittleEndian);
+	//copying the BOM
 	if (strcmp(KeepOrSwap, "-keep") == 0)
 	{
 		fwrite(buffer, 1, sizeof(buffer), fileOutput);	}
@@ -88,8 +113,6 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 		fwrite(buffer, 1, sizeof(buffer), fileOutput);
 	}
 	
-	//fwrite(buffer, 1, sizeof(buffer), fileOutput);
-
 	//check if windows
 	if (strcmp(sysInput,"-win") == 0 || strcmp(sysOutput, "-win") == 0)
 	{
@@ -105,7 +128,7 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 				if((buffer[0] == 0x0d ) && (buffer[1] == 0x00) && (isLittleEndian == 0)){
 					i = fread(buffer, 1 , sizeof(buffer), fileInput);
 				}
-				//big endian
+				//little endian
 				if ((buffer[0] == 0x00 ) && (buffer[1] == 0x0d) && (isLittleEndian == 1))
 				{
 					char nextBuffer[2];
@@ -128,7 +151,7 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 
 
 
-				//littel endian
+				//big endian
 				if ((buffer[0] == 0x0d ) && (buffer[1] == 0x00) && (isLittleEndian == 0))
 				{
 					char nextBuffer[2];
@@ -184,7 +207,7 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 					i = fread(buffer, 1 , sizeof(buffer), fileInput);
 				}
 				
-				//big endian
+				//little endian
 				if ((buffer[0] == 0x00 ) && (buffer[1] == 0x0d) && (isLittleEndian == 1))
 				{
 					char nextBuffer[2];
@@ -207,7 +230,7 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 
 
 
-				//littel endian
+				//big endian
 				if ((buffer[0] == 0x0d ) && (buffer[1] == 0x00) && (isLittleEndian == 0))
 				{
 					char nextBuffer[2];
@@ -255,7 +278,7 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 			while (fread(buffer, 1 , sizeof(buffer), fileInput) > 0)
 			{
 				int flagMW = 1;
-				//big endian
+				//little endian
 				if ((buffer[0] == 0x00 ) && (buffer[1] == 0x0d) && (isLittleEndian == 1))
 				{
 					if (strcmp(KeepOrSwap, "-keep") == 0)
@@ -270,7 +293,7 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 					}
 					
 				}
-				//littel endian
+				//big endian
 				if ((buffer[0] == 0x0d ) && (buffer[1] == 0x00) && (isLittleEndian == 0))
 				{
 					if (strcmp(KeepOrSwap, "-keep") == 0)
@@ -278,7 +301,7 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 						fwrite(windowsEndLittle, 1, sizeof(windowsEndLittle), fileOutput);
 						flagMW = 0;
 					}
-					else if (strcmp(KeepOrSwap, "-swap") == 0)
+					else if (strcmp(KeepOrSwap, "-swap") == 1)
 					{
 						fwrite(windowsEndBig, 1, sizeof(windowsEndBig), fileOutput);
 						flagMW = 0;
@@ -309,7 +332,7 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 			while (fread(buffer, 1 , sizeof(buffer), fileInput) > 0)
 			{
 				int flagUW = 0;
-				//big endian
+				//little endian
 				if ((buffer[0] == 0x00 ) && (buffer[1] == 0x0a) && (isLittleEndian == 1))
 				{
 					if (strcmp(KeepOrSwap, "-keep") == 0)
@@ -324,7 +347,7 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 					}
 					
 				}
-				//littel endian
+				//big endian
 				if ((buffer[0] == 0x0a ) && (buffer[1] == 0x00) && (isLittleEndian == 0))
 				{
 					if (strcmp(KeepOrSwap, "-keep") == 0)
@@ -366,12 +389,12 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 	{
 		while (fread(buffer, 1 , sizeof(buffer), fileInput) > 0)
 		{
-			//for big
+			//for little
 			if ((buffer[0] == 0x00 ) && (buffer[1] == 0x0d) && (isLittleEndian == 1))
 			{
 				buffer[1] = 0x0a;
 			}
-			//for little
+			//for big
 			if ((buffer[0] == 0x0d ) && (buffer[1] == 0x00) && (isLittleEndian == 0))
 			{
 				buffer[0] = 0x0a;
@@ -395,12 +418,12 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 	{
 		while (fread(buffer, 1 , sizeof(buffer), fileInput) > 0)
 		{
-			//for big
+			//for little
 			if ((buffer[0] == 0x00 ) && (buffer[1] == 0x0a) && (isLittleEndian == 1))
 			{
 				buffer[1] = 0x0d;
 			}
-			//for little
+			//for big
 			if ((buffer[0] == 0x0a ) && (buffer[1] == 0x00) && (isLittleEndian == 0))
 			{
 				buffer[0] = 0x0d;
@@ -422,12 +445,21 @@ void copyFileToFile2(char* fileNameInput, char* fileNameOutput, char* sysInput, 
 	
 	return;
 }
-
+/**
+ * @brief  if there is only 2 or 4 args i add "-keep"
+ * 
+ * i divided to cases:
+ * 1. the same OS - sending to the first method copyFileToFile
+ * 2. windows to unix- sending to the first method copyFileToFile2
+ * 3. windows to mac- sending to the first method copyFileToFile2
+ * 4. mac to windows- sending to the first method copyFileToFile2
+ * 5. unix to windows- sending to the first method copyFileToFile2
+ * 6. mac to unix- sending to the first method copyFileToFile2
+ * 7. unix to mac- sending to the first method copyFileToFile2
+ * in every case above i divded by big an little endian, and then dvided again into keep or swap 
+ */
 int main(int argc, char* argv[]){
-
-	//copyFileToFile2("./unix_input-utf-16.txt", "stest_win_to_unix_swap.txt", "-win", "-unix", "-keep");
-
-	FILE *fileInput, *fileOutput;
+	FILE *fileInput;
 	//check that the argument ar correct
 	if ((argc < 3) || (argc == 4))
 	{
@@ -438,10 +470,11 @@ int main(int argc, char* argv[]){
 		fileInput = fopen(argv[1], "rb");
 		if (fileInput == NULL)
 		{
+			fclose(fileInput);
 			return 0;
 		}
 	}
-	
+	//switching for the right case
 	if (argc == 3)
 	{
 		copyFileToFile(argv[1], argv[2], "-keep");

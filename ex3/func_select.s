@@ -37,8 +37,8 @@ run_func:	# the main function:
     # rsi is pstring1
     # rdx is pstring2
     pushq   %rdi
-    subq    %rdi, $50
-    cmpl    $10, %rdi
+    subq    $50, %rdi
+    cmpq    $10, %rdi
     ja      .Jin
     jmp     *.Jtable(,%rdi,4)
     
@@ -48,4 +48,15 @@ run_func:	# the main function:
 	ret			# return to caller function (OS).		
 
 
+.J50:    # 50/60
+.J52:    # 52    
+.J53:    # 53
+.J54:    # 54
+.J55:    # 55
+.Jin:    # 51 invalid default
+    movq    $formatInvalid, %rdi
+    movq	$0, %rax
+    call	printf
+    leave
+    ret
 

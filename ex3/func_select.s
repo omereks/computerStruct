@@ -2,9 +2,11 @@
 
 
 .section	.rodata	
+format_d:       .string "%c"
+format_c:       .string "%c"
 formatInvalid:	.string	"invalid option!\n"
 format5060:	    .string	"first pstring length: %d, second pstring length: %d\n"
-format52:	    .string	"old char: %c,new char: %c, first string: %s, second string: %s\n"
+format52:	    .string	"old char: %c, new char: %c, first string: %s, second string: %s\n"
 format5354:	    .string	"length: %d, string: %s\n"
 format55:	    .string	"compare result: %d\n"
 
@@ -55,27 +57,76 @@ run_func:	# the main function:
 
 
 .J50:    # 50/60
+
+    movq    %rsi, %rdi          # getting the first byte for the second arg
+    movq    $0, %rax            
+    call    pstrlen           
+    movq    %rax,%rsi
+    
+    movq    %rdx, %rdi          # getting the first byte for the third arg
+    movq    $0, %rax            
+    call    pstrlen           
+    movq    %rax,%rdx    
+
     movq    $format5060, %rdi   # first arg
 
-    movq    $0, %rcx            # getting the first byte for arg2 
-    movq    (%rsi),%rsi
-    movb    %sil, %cl
-    movq    $0, %rsi
-    movq    %rcx,%rsi
-
-    movq    $0, %rcx            # getting the first byte for arg3
-    movq    (%rdx),%rdx
-    movb    %dl, %cl
-    movq    $0, %rdx
-    movq    %rcx,%rdx
-    
     movq    $0, %rax
     call   printf
     leave
     ret
 
 
-.J52:    # 52    
+.J52:    # 52 
+    
+    movq    %rdx, %r15      # kepp pstring2
+    movq    %rsi, %r14      # kepp pstring1
+
+    
+    sub     $16, %rsp
+
+    movq    $format_d, %rdi
+    leaq    -8(%rbp), %rsi
+    movq    $0, %rax
+    call    scanf           
+
+    
+    movq    $format_d, %rdi
+    leaq    -8(%rbp), %rsi
+    movq    $0, %rax
+    call    scanf           
+    
+
+
+    movq    $format_d, %rdi
+    leaq    -16(%rbp), %rsi
+    movq    $0, %rax
+    call    scanf           
+
+    
+    movq    $format_d, %rdi
+    leaq    -16(%rbp), %rsi
+    movq    $0, %rax
+    call    scanf           
+    
+    
+    # build replace pstring1
+    movq    %r14, %rdi      # arg 1 pstring      
+    movq    -8(%rbp), %rsi  # arg 2 old char
+    movq    -16(%rbp), %rdx  # new char arg3
+    movq    $0, %rax
+    call    replaceChar
+
+
+    # print "old char: %c,new char: %c, first string: %s, second string: %s\n"
+    movq    $format52, %rdi     # string
+    movq    -8(%rbp), %rsi          # old char
+    movq    -16(%rbp), %rdx              # new char
+    movq    %r14, %rcx              # first string
+    movq    %r15, %r8               # second string
+    movq    $0, %rax
+    call    printf
+
+    add     $16, %rsp
     leave
     ret
 .J53:    # 53

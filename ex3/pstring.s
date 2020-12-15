@@ -73,12 +73,13 @@ replaceChar:
     jmp     .Loop
 
 .changeChar:
-    movq    $format_ch, %rdi
-    movq	$0, %rax
-    call	printf
+    # movq    $format_ch, %rdi
+    # movq	$0, %rax
+    # call	printf
 
-    # movq    $0, (%rdi)
-    movq    %rdx, (%rdi)
+    movb    -16(%rbp), %r13b
+    movb    %r13b, (%r9)
+    # movb    -16(%rbp), %r13b            # ######################3 how the fuck to swap chars
     ret
 
 .LoopDone:

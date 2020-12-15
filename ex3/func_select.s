@@ -110,12 +110,18 @@ run_func:	# the main function:
     
     
     # build replace pstring1
-    movq    %r14, %rdi      # arg 1 pstring      
+    movq    %r14, %rdi      # arg 1 pstring 1     
     movq    -8(%rbp), %rsi  # arg 2 old char
     movq    -16(%rbp), %rdx  # new char arg3
     movq    $0, %rax
     call    replaceChar
 
+    # build replace pstring1
+    movq    %r15, %rdi      # arg 1 pstring 2     
+    movq    -8(%rbp), %rsi  # arg 2 old char
+    movq    -16(%rbp), %rdx  # new char arg3
+    movq    $0, %rax
+    call    replaceChar
 
     # print "old char: %c,new char: %c, first string: %s, second string: %s\n"
     movq    $format52, %rdi     # string

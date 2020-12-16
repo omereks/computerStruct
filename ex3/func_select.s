@@ -2,7 +2,8 @@
 
 
 .section	.rodata	
-format_d:       .string "%c"
+format_s:       .string "%s \n"
+format_d:       .string "%hhu"
 format_c:       .string "%c"
 formatInvalid:	.string	"invalid option!\n"
 format5060:	    .string	"first pstring length: %d, second pstring length: %d\n"
@@ -57,7 +58,6 @@ run_func:	# the main function:
 
 
 .J50:    # 50/60
-
     movq    %rsi, %rdi          # getting the first byte for the second arg
     movq    $0, %rax            
     call    pstrlen           
@@ -76,45 +76,44 @@ run_func:	# the main function:
     ret
 
 
-.J52:    # 52 
-    
+.J52:    # 52    
     movq    %rdx, %r15      # kepp pstring2
     movq    %rsi, %r14      # kepp pstring1
-
-    
+  
     sub     $16, %rsp
 
-    movq    $format_d, %rdi
+    movq    $format_c, %rdi
+    leaq    -8(%rbp), %rsi
+    movq    $0, %rax
+    call    scanf           
+  
+    movq    $format_c, %rdi
     leaq    -8(%rbp), %rsi
     movq    $0, %rax
     call    scanf           
 
-    
-    movq    $format_d, %rdi
-    leaq    -8(%rbp), %rsi
-    movq    $0, %rax
-    call    scanf           
-    
-
-
-    movq    $format_d, %rdi
+    movq    $format_c, %rdi
     leaq    -16(%rbp), %rsi
     movq    $0, %rax
     call    scanf           
-
-    
-    movq    $format_d, %rdi
+   
+    movq    $format_c, %rdi
     leaq    -16(%rbp), %rsi
     movq    $0, %rax
     call    scanf           
-    
-    
+     
     # build replace pstring1
     movq    %r14, %rdi      # arg 1 pstring 1     
     movq    -8(%rbp), %rsi  # arg 2 old char
     movq    -16(%rbp), %rdx  # new char arg3
     movq    $0, %rax
     call    replaceChar
+
+ #   movq    %rax, %rsi
+  #  movq    $format_s, %rdi
+ #   movq    $0, %rax
+  #  call    printf
+  #  ret
 
     # build replace pstring1
     movq    %r15, %rdi      # arg 1 pstring 2     
@@ -135,7 +134,20 @@ run_func:	# the main function:
     add     $16, %rsp
     leave
     ret
+
+
+
+
 .J53:    # 53
+
+    sub     $16, %rsp
+
+    movq    $format_d, %rdi
+    leaq    -8(%rbp), %rsi
+    movq    $0, %rax
+    call    scanf
+
+
 .J54:    # 54
 .J55:    # 55
 

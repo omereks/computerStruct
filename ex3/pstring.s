@@ -106,10 +106,10 @@ pstrijcpy:
     movq    %rdi, %rax
     # set the pointer to i
     
-    #addq    $1, %rdi
-    #addq    (%rdx), %rdi
-    #addq    $1, %rsi
-    #addq    (%rdx), %rsi
+    # addq    $1, %rdi
+    # addq    (%rdx), %rdi
+    # addq    $1, %rsi
+    # addq    (%rdx), %rsi
 
 
     leaq 1(%rdi,%rdx), %rdi     #move dst and src pstr to i'th place

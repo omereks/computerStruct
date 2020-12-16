@@ -150,7 +150,8 @@ run_func:	# the main function:
     leaq    -8(%rbp), %rsi
     movq    $0, %rax
     call    scanf
-    movq    -8(%rbp), %r13
+    xor     %r13, %r13
+    movb    -8(%rbp), %r13b
 
     # arg 4 - j
     movq    $format_d, %rdi
@@ -166,7 +167,7 @@ run_func:	# the main function:
     # send to pstrijcpy
     movq    %r15, %rdi  # arg 1
     movq    %r14, %rsi  # arg 2
-    movq    -8(%rbp), %rdx
+    movb    %r13b, %dl
     movq    $0, %rax
     call    pstrijcpy
     

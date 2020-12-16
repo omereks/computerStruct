@@ -104,14 +104,8 @@ pstrijcpy:
 
     popq    %rdi
     movq    %rdi, %rax
+
     # set the pointer to i
-    
-    # addq    $1, %rdi
-    # addq    (%rdx), %rdi
-    # addq    $1, %rsi
-    # addq    (%rdx), %rsi
-
-
     leaq 1(%rdi,%rdx), %rdi     #move dst and src pstr to i'th place
     leaq 1(%rsi,%rdx), %rsi
     
@@ -196,6 +190,8 @@ pstrijcmp:
     # i in rdx edx
     # j in rcx ecx
     
+    pushq   %rdi
+
     # check when invalid input
     # j >src.length
     cmpb    %cl, (%rsi)
@@ -214,11 +210,44 @@ pstrijcmp:
     jb     .invalidInputCopy
     
 
+    popq    %rdi
+    movq    %rdi, %rax
+    
+    # set the pointer to i
+    leaq 1(%rdi,%rdx), %rdi     #move dst and src pstr to i'th place
+    leaq 1(%rsi,%rdx), %rsi
+    
+    .loopCopCmp:
+        movb (%rsi), %r8b       #cmp pstr2[i] with pstr1[i]
+        cmpb (%rdi), %r8b       
+        jb .pst1Big
+        ja .pst2Big
+        
+                
+        add     $1, %rdx # i++ 
+        leaq    1(%rdi), %rdi
+        leaq    1(%rsi), %rsi
+        
+        cmpb    %cl, %dl        # stop mode
+        jbe      .loopCopCmp
+        movq    $0, %rax
+        ret
+    
+    
+    .pst1Big:
+        movq    $0, %rax
+        movq    $1, %rax
+        ret
+    .pst2Big:
+        movq    $0, %rax
+        movq    $-1, %rax
+        ret
 
     .invalidInputCopy:
         movq    $0, %rax
         movq    $format_invalid, %rdi
         call    printf
+        movq    $-2, %rax
         ret
 
 

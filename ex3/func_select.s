@@ -212,8 +212,28 @@ run_func:	# the main function:
     movq    %r15,   %rsi
     movq    %r14,   %rdx
     call printf
-    
     popq    %rsi
+
+
+    # getting pstring 2 length
+    popq    %rdx
+    movq    %rdx, %rdi          
+    movq    $0, %rax            
+    call    pstrlen     
+    movq    %rax,%r15       # arg2 for printing
+
+    movq    %rdx, %rdi
+    movq    $0,   %rax
+    call    swapCase
+    movq    %rax,   %r14    # arg3 for printing
+
+    # buildprint1   "length: %d, string: %s\n"
+    movq    $format5354, %rdi
+    movq    %r15,   %rsi
+    movq    %r14,   %rdx
+    call printf
+    popq    %rsi
+
 
     leave
     ret

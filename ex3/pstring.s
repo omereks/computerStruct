@@ -143,7 +143,7 @@ pstrijcpy:
 swapCase:
     # pstring in rdi
     pushq   %rdi
-
+    
     movq    %rdi, %r9       # keeping the pointer
     movq    $0, %rax
     call    pstrlen
@@ -180,5 +180,5 @@ swapCase:
 
     .LoopDoneSwap:
         popq    %rdi
-        movq    %r9, %rax  
+        movq    %rdi, %rax  
         ret

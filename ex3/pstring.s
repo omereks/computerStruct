@@ -3,9 +3,10 @@
 
 
 .section	.rodata	
-format_dd:       .string "%lu \n"
-format_c:       .string "%c "
-format_ch:       .string "ok"               # ###################################
+format_dd:       .string "%hhu \n"
+format_c:       .string "%c"
+format_invalid:  .string "invalid input!\n"
+format_ok:       .string "ok"               # ###################################
 
 
 
@@ -19,6 +20,13 @@ pstrlen:
     movb    %cl, %al
     
     ret
+
+
+
+
+
+
+
 
 .globl	replaceChar	        # the label "replaceChar" is used to state the initial point of this program
 .type	replaceChar, @function	# the label "replaceChar" representing the beginning of a function
@@ -60,3 +68,69 @@ replaceChar:
     movq    %r9, %rax  
     ret
 
+
+
+
+
+
+.globl	pstrijcpy	        # the label "replaceChar" is used to state the initial point of this program
+.type	pstrijcpy, @function	# the label "replaceChar" representing the beginning of a function
+
+pstrijcpy:
+    # pstring 1 in rdi
+    # pstring 2 in rsi
+    # i in rdx edx
+    # j in rcx ecx
+    
+    pushq   %rdi
+    
+    # check when invalid input
+    # j >src.length
+    cmpb    %cl, (%rsi)
+    jbe     .invalidInput
+    # j >dst.length
+    cmpb    %cl, (%rdi)
+    jbe     .invalidInput
+    # i <= 0
+    cmpb    $0, %dl
+    jb     .invalidInput
+    # j <= 0
+    cmpb    $0, %cl
+    jb     .invalidInput
+    # i>j
+    cmpb    %dl, %cl
+    jb     .invalidInput
+    
+
+    popq    %rdi
+    movq    %rdi, %rax
+    # set the pointer to i
+    
+    addq    $1, %rdi
+    # addq    %rdx, %rdi
+    addq    $1, %rsi
+    # addq    %rdx, %rsi
+
+
+    # leaq    (%rdi, %rdx), %rdi
+    # leaq    (%rsi, %rdx), %rsi
+    
+.loopCop:
+    
+    movb    (%rsi), %r8b
+    movb    %r8b,  (%rdi)
+    
+    add     $1, %rdx # i++ 
+    leaq    1(%rdi), %rdi
+    leaq    1(%rsi), %rsi
+    
+    cmpb    %cl, %dl        # stop mode
+    jbe      .loopCop
+    ret
+
+.invalidInput:
+    movq    $0, %rax
+    movq    $format_invalid, %rdi
+    call    printf
+    popq    %rax
+    ret

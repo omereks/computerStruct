@@ -7,7 +7,7 @@ void run_main() {
 	Pstring p2;
 	int len;
 	int opt;
-
+	
 	// initialize first pstring
 	scanf("%d", &len);
 	scanf("%s", p1.str);

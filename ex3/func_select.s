@@ -142,11 +142,70 @@ run_func:	# the main function:
 
     sub     $16, %rsp
 
+    movq   %rdx, %r14   # pstring 2
+    movq   %rsi, %r15   # pstring 1
+
+    # arg 3 - i
     movq    $format_d, %rdi
     leaq    -8(%rbp), %rsi
     movq    $0, %rax
     call    scanf
+    movq    -8(%rbp), %r13
 
+    # arg 4 - j
+    movq    $format_d, %rdi
+    leaq    -16(%rbp), %rsi
+    movq    $0, %rax
+    call    scanf
+    movq    -16(%rbp), %rcx
+
+    
+    
+    
+
+    # send to pstrijcpy
+    movq    %r15, %rdi  # arg 1
+    movq    %r14, %rsi  # arg 2
+    movq    -8(%rbp), %rdx
+    movq    $0, %rax
+    call    pstrijcpy
+    
+    # getting pstring 1 length
+    movq    %r15, %rdi          
+    movq    $0, %rax            
+    call    pstrlen
+    movq    $0, %rsi           
+    movq    %rax,%rsi
+    
+    
+    # buildprint1   "length: %d, string: %s\n"
+    movq    $format5354, %rdi
+    movq    %r15, %rdx
+    call printf
+
+
+    # getting pstring 2 length
+    movq    %r14, %rdi          
+    movq    $0, %rax            
+    call    pstrlen
+    movq    $0, %rsi           
+    movq    %rax,%rsi
+
+    # buildprint2   "length: %d, string: %s\n"
+    movq    $format5354, %rdi
+    movq    %r14, %rdx
+    call printf
+    
+    leave
+    ret
+
+     movq    $format_d, %rdi
+    movq    %rcx, %rsi
+    movq    $0, %rax
+    call    printf
+    leave
+    ret
+    
 
 .J54:    # 54
 .J55:    # 55

@@ -10,8 +10,8 @@
             "name": "Launch(gdb)",
             "program": "a.out",
             "cwd": "${workspaceRoot}",
-            "debuggerArgs": ["1", "1", "1", "1", "52"],
-            "preLaunchTask": "build"
+            "debuggerArgs": [],
+            "preLaunchTask": "build",
         }
     ]
 }

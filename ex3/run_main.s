@@ -1,5 +1,10 @@
-.section .rodata
-format_d .string "%d"
+.data
+
+.section	.rodata	
+format_du:       .string "%hhu"
+format_s:       .string "%s"
+format_d:       .string "%d"
+
 
 
 
@@ -10,17 +15,66 @@ format_d .string "%d"
 # send to run_func optaionSelect. two pstring adresses.
 .text
 .globl	run_main
-	.type	run_main, @function
+.type	run_main, @function
 run_main:
-    push    %rbp
-    movq    %rsp, %rbp
+    pushq	%rbp		# save the old frame pointer
+	movq	%rsp, %rbp	# create the new frame pointer
 
-    sub     $256, %rsp
+    
+
+    # first Pstring
+    sub     $272, %rsp
+    pushq   %r14              #temp registers for pointers to pstr
+    pushq   %r15
+    # get first size of pstring1
+    movq    $0, %rax          
     movq    $format_d, %rdi
-    movq    $0, %rax
+    leaq    (%rsp), %rsi
+    call    scanf
+    leaq    (%rsp), %r14
+    # get first string of pstring1
+    movq    $0, %rax          
+    movq    $format_s, %rdi
+    leaq    1(%rsp), %rsi
+    call    scanf
+
+
+    # second Pstring
+    sub     $272, %rsp
+    # get first size of pstring2
+    movq    $0, %rax          
+    movq    $format_d, %rdi
+    leaq    (%rsp), %rsi
+    call    scanf
+    leaq    (%rsp), %r15
+    # get first string of pstring2
+    movq    $0, %rax          
+    movq    $format_s, %rdi
+    leaq    1(%rsp), %rsi
     call    scanf
 
     
+    # get user option
+    sub     $16, %rsp 
+    movq    $0, %rax          
+    movq    $format_d, %rdi
+    leaq    (%rsp), %rsi
+    call    scanf
+    
+
+    # build run_func
+    movq    (%rsp), %rdi   # user option
+    movq    %r14, %rsi     # Pstring 1
+    movq    %r15, %rdx     # Pstring 2     
+    call    run_func
+
+    popq    %r15               #free the stack space
+    popq    %r14
+
+    
+    movq    %rbp, %rsp
+    popq    %rbp
+    ret
 
     
 

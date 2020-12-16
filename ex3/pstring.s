@@ -3,7 +3,7 @@
 
 
 .section	.rodata	
-format_dd:       .string "%hhu \n"
+format_dd:       .string "%hhu"
 format_c:       .string "%c"
 format_invalid:  .string "invalid input!\n"
 format_ok:       .string "ok"               # ###################################

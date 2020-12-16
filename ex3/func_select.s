@@ -2,7 +2,7 @@
 
 
 .section	.rodata	
-format_s:       .string "%s \n"
+format_s:       .string "%s"
 format_d:       .string "%hhu"
 format_c:       .string "%c"
 formatInvalid:	.string	"invalid option!\n"
@@ -37,14 +37,17 @@ run_func:	# the main function:
 	pushq	%rbp		# save the old frame pointer
 	movq	%rsp, %rbp	# create the new frame pointer
 	
+	
 
 	# rdi is thr option number 50/60 52 53 54 55 else
     # rsi is pstring1
     # rdx is pstring2
-    leaq    -50(%rdi), %rdi   # rdi = rdi -50  -> getting [0,10]
+
+   
+
+    subq    $50, %rdi   # rdi = rdi -50  -> getting [0,10]
     cmpq    $10, %rdi
     ja      .Jin
-    # leaq    (%rbp, %rdi, 8), %rsp
     jmp     *.Jtable(,%rdi,8)
     
 

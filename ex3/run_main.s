@@ -23,7 +23,7 @@ run_main:
     
 
     # first Pstring
-    sub     $272, %rsp
+    sub     $256, %rsp
     pushq   %r14              #temp registers for pointers to pstr
     pushq   %r15
     # get first size of pstring1
@@ -40,7 +40,7 @@ run_main:
 
 
     # second Pstring
-    sub     $272, %rsp
+    sub     $256, %rsp
     # get first size of pstring2
     movq    $0, %rax          
     movq    $format_d, %rdi
@@ -75,8 +75,3 @@ run_main:
     movq    %rbp, %rsp
     popq    %rbp
     ret
-
-    
-
-
-

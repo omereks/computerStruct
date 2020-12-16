@@ -247,10 +247,7 @@ pstrijcmp:
         movq    $0, %rax
         movq    $format_invalid, %rdi
         call    printf
-        movq    $-2, %rax
+        movq    $0, %rax
+        movq    $2, %rax
         ret
 
-
-
-    movq    $0, %rax
-    ret

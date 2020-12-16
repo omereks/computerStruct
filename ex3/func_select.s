@@ -4,6 +4,7 @@
 .section	.rodata	
 format_s:       .string "%s"
 format_d:       .string "%hhu"
+format_dd:       .string "%d"
 format_c:       .string "%c"
 formatInvalid:	.string	"invalid option!\n"
 format5060:	    .string	"first pstring length: %d, second pstring length: %d\n"
@@ -38,21 +39,28 @@ run_func:	# the main function:
 	movq	%rsp, %rbp	# create the new frame pointer
 	
 	
+	
 
 	# rdi is thr option number 50/60 52 53 54 55 else
     # rsi is pstring1
     # rdx is pstring2
 
-   
-
-    subq    $50, %rdi   # rdi = rdi -50  -> getting [0,10]
-    cmpq    $10, %rdi
-    ja      .Jin
-    jmp     *.Jtable(,%rdi,8)
     
 
-	movq	%rbp, %rsp	# restore the old stack pointer - release all used memory.
-	popq	%rbp		# restore old frame pointer (the caller function frame)
+    subq    $50, %rdi   # rdi = rdi -50  -> getting [0,10]
+    cmpl    $10, %edi
+    ja      .Jin
+    jmp     *.Jtable(,%edi,8)
+    
+    movq    %rdi, %rsi
+    movq    $format_dd, %rdi
+    movq    $0, %rax
+    call    printf
+    movq    %rbp, %rsp
+    popq    %rbp
+    leave
+    ret
+	
 	ret			# return to caller function (OS).		
 
 
@@ -75,6 +83,8 @@ run_func:	# the main function:
 
     movq    $0, %rax
     call   printf
+    movq    %rbp, %rsp
+    popq    %rbp
     leave
     ret
 
@@ -129,6 +139,8 @@ run_func:	# the main function:
     call    printf
 
     add     $16, %rsp
+    movq    %rbp, %rsp
+    popq    %rbp
     leave
     ret
 
@@ -189,7 +201,8 @@ run_func:	# the main function:
     movq    %r14, %rdx
     movq    $0, %rax            
     call printf
-    
+    movq    %rbp, %rsp
+    popq    %rbp
     leave
     ret
 
@@ -237,7 +250,8 @@ run_func:	# the main function:
     call printf
     popq    %rsi
 
-
+    movq    %rbp, %rsp
+    popq    %rbp
     leave
     ret
     
@@ -270,12 +284,15 @@ run_func:	# the main function:
     movq    %r14, %rsi  # arg 2
     movb    %r13b,%dl
     movq    $0, %rax
-    call    pstrijcmp
-    movq    %rax, %rsi 
-
+    call    pstrijcmp  
+    
+  ###############################################################################################################
     # builf print "compare result: %d\n"
     movq    $format55, %rdi
+    movq    %rax, %rsi 
     call    printf
+    movq    %rbp, %rsp
+    popq    %rbp
     leave
     ret
 
@@ -284,5 +301,7 @@ run_func:	# the main function:
     movq    $formatInvalid, %rdi
     movq	$0, %rax
     call	printf
+    movq    %rbp, %rsp
+    popq    %rbp
     leave
     ret

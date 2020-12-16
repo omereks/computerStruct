@@ -134,3 +134,51 @@ pstrijcpy:
         call    printf
         popq    %rax
         ret
+
+
+
+.globl	swapCase	        # the label "swapCase" is used to state the initial point of this program
+.type	swapCase, @function	# the label "swapCase" representing the beginning of a function
+
+swapCase:
+    # pstring in rdi
+    pushq   %rdi
+
+    movq    %rdi, %r9       # keeping the pointer
+    movq    $0, %rax
+    call    pstrlen
+    movq    $0, %r12
+    movq    %rax, %r12          # r12 is now the number of letters in the loop  
+
+    .LoopSwap:
+        cmpq    $0, %r12        # stop mode
+        je      .LoopDoneSwap
+        
+        leaq    1(%r9) , %r9    # getting the next char
+        movq    (%r9), %r13
+    # capital_letter:   %r13b, (%r9)
+        cmpb $65, (%r9)        # less then 65
+        jl .LoopbSwapEnd
+        cmpb $90, (%r9)        # more then 90
+        ja .small_letter
+        # Else
+        addb $32, (%r9)
+        jmp .LoopbSwapEnd
+    
+    .small_letter:
+        cmpb $97, (%r9)        # less then 97
+        jl .LoopbSwapEnd
+        cmpb $122, (%r9)        # more then 122
+        ja .LoopbSwapEnd
+        # Else
+        subb $32, (%r9)
+        jmp .LoopbSwapEnd
+
+    .LoopbSwapEnd:
+        leaq     -1(%r12), %r12 # i-- 
+        jmp     .LoopSwap
+
+    .LoopDoneSwap:
+        popq    %rdi
+        movq    %r9, %rax  
+        ret

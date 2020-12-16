@@ -109,12 +109,6 @@ run_func:	# the main function:
     movq    $0, %rax
     call    replaceChar
 
- #   movq    %rax, %rsi
-  #  movq    $format_s, %rdi
- #   movq    $0, %rax
-  #  call    printf
-  #  ret
-
     # build replace pstring1
     movq    %r15, %rdi      # arg 1 pstring 2     
     movq    -8(%rbp), %rsi  # arg 2 old char
@@ -160,10 +154,6 @@ run_func:	# the main function:
     call    scanf
     movq    -16(%rbp), %rcx
 
-    
-    
-    
-
     # send to pstrijcpy
     movq    %r15, %rdi  # arg 1
     movq    %r14, %rsi  # arg 2
@@ -176,14 +166,13 @@ run_func:	# the main function:
     movq    $0, %rax            
     call    pstrlen
     movq    $0, %rsi           
-    movq    %rax,%rsi
-    
+    movq    %rax,%rsi  
     
     # buildprint1   "length: %d, string: %s\n"
     movq    $format5354, %rdi
     movq    %r15, %rdx
+    movq    $0, %rax            
     call printf
-
 
     # getting pstring 2 length
     movq    %r14, %rdi          
@@ -195,20 +184,42 @@ run_func:	# the main function:
     # buildprint2   "length: %d, string: %s\n"
     movq    $format5354, %rdi
     movq    %r14, %rdx
+    movq    $0, %rax            
     call printf
     
     leave
     ret
 
-     movq    $format_d, %rdi
-    movq    %rcx, %rsi
-    movq    $0, %rax
-    call    printf
+     
+    
+
+.J54:    # 54
+    pushq   %rdx        # pstring 2
+    pushq   %rsi
+    # getting pstring 1 length
+    movq    %rsi, %rdi          
+    movq    $0, %rax            
+    call    pstrlen     
+    movq    %rax,%r15       # arg2 for printing
+
+    movq    (%rsp), %rdi
+    movq    $0,   %rax
+    call    swapCase
+    movq    %rax,   %r14    # arg3 for printing
+
+    # buildprint1   "length: %d, string: %s\n"
+    movq    $format5354, %rdi
+    movq    %r15,   %rsi
+    movq    %r14,   %rdx
+    call printf
+    
+    popq    %rsi
+
     leave
     ret
     
 
-.J54:    # 54
+
 .J55:    # 55
 
 

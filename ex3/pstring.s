@@ -182,3 +182,46 @@ swapCase:
         popq    %rdi
         movq    %rdi, %rax  
         ret
+
+
+
+
+
+.globl	pstrijcmp	        # the label "pstrijcmp" is used to state the initial point of this program
+.type	pstrijcmp, @function	# the label "pstrijcmp" representing the beginning of a function
+
+pstrijcmp:
+    # pstring 1 in rdi
+    # pstring 2 in rsi
+    # i in rdx edx
+    # j in rcx ecx
+    
+    # check when invalid input
+    # j >src.length
+    cmpb    %cl, (%rsi)
+    jbe     .invalidInputCopy
+    # j >dst.length
+    cmpb    %cl, (%rdi)
+    jbe     .invalidInputCopy
+    # i <= 0
+    cmpb    $0, %dl
+    jb     .invalidInputCopy
+    # j <= 0
+    cmpb    $0, %cl
+    jb     .invalidInputCopy
+    # i>j
+    cmpb    %dl, %cl
+    jb     .invalidInputCopy
+    
+
+
+    .invalidInputCopy:
+        movq    $0, %rax
+        movq    $format_invalid, %rdi
+        call    printf
+        ret
+
+
+
+    movq    $0, %rax
+    ret

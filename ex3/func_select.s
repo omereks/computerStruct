@@ -242,6 +242,39 @@ run_func:	# the main function:
 
 .J55:    # 55
 
+    sub     $16, %rsp
+
+    movq   %rdx, %r14   # pstring 2
+    movq   %rsi, %r15   # pstring 1
+
+    # arg 3 - i
+    movq    $format_d, %rdi
+    leaq    -8(%rbp), %rsi
+    movq    $0, %rax
+    call    scanf
+    xor     %r13, %r13
+    movb    -8(%rbp), %r13b
+
+    # arg 4 - j
+    movq    $format_d, %rdi
+    leaq    -16(%rbp), %rsi
+    movq    $0, %rax
+    call    scanf
+    movq    -16(%rbp), %rcx
+
+    # send to pstrijcpy
+    movq    %r15, %rdi  # arg 1
+    movq    %r14, %rsi  # arg 2
+    movb    %r13b,%dl
+    movq    $0, %rax
+    call    pstrijcmp
+    movq    %rax, %rsi 
+
+    # builf print "compare result: %d\n"
+    movq    $format55, %rdi
+    call    printf
+    leave
+    ret
 
 
 .Jin:    # 51 invalid default
@@ -250,4 +283,3 @@ run_func:	# the main function:
     call	printf
     leave
     ret
-

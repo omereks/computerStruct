@@ -46,27 +46,27 @@ replaceChar:
     jmp     .Loop
     ret
     
-.Loop:
-    cmpq    $0, %r12        # stop mode
-    je      .LoopDone
+    .Loop:
+        cmpq    $0, %r12        # stop mode
+        je      .LoopDone
+        
+        leaq    1(%r9) , %r9    # getting the next char
+        movq    (%r9), %r13
     
-    leaq    1(%r9) , %r9    # getting the next char
-    movq    (%r9), %r13
-   
-    cmpb    %r13b, -8(%rbp) # check if nescesry to swap chars
-    je      .changeChar
-.Loopb:
-    leaq     -1(%r12), %r12 # i-- 
-    jmp     .Loop
+        cmpb    %r13b, -8(%rbp) # check if nescesry to swap chars
+        je      .changeChar
+    .Loopb:
+        leaq     -1(%r12), %r12 # i-- 
+        jmp     .Loop
 
-.changeChar:
-    movb    -16(%rbp), %r13b    # swithcing the chars
-    movb    %r13b, (%r9)
-    jmp     .Loopb
+    .changeChar:
+        movb    -16(%rbp), %r13b    # swithcing the chars
+        movb    %r13b, (%r9)
+        jmp     .Loopb
 
-.LoopDone:
-    movq    %r9, %rax  
-    ret
+    .LoopDone:
+        movq    %r9, %rax  
+        ret
 
 
 
@@ -106,31 +106,31 @@ pstrijcpy:
     movq    %rdi, %rax
     # set the pointer to i
     
-    addq    $1, %rdi
-    # addq    %rdx, %rdi
-    addq    $1, %rsi
-    # addq    %rdx, %rsi
+    #addq    $1, %rdi
+    #addq    (%rdx), %rdi
+    #addq    $1, %rsi
+    #addq    (%rdx), %rsi
 
 
-    # leaq    (%rdi, %rdx), %rdi
-    # leaq    (%rsi, %rdx), %rsi
+    leaq 1(%rdi,%rdx), %rdi     #move dst and src pstr to i'th place
+    leaq 1(%rsi,%rdx), %rsi
     
-.loopCop:
-    
-    movb    (%rsi), %r8b
-    movb    %r8b,  (%rdi)
-    
-    add     $1, %rdx # i++ 
-    leaq    1(%rdi), %rdi
-    leaq    1(%rsi), %rsi
-    
-    cmpb    %cl, %dl        # stop mode
-    jbe      .loopCop
-    ret
+    .loopCop:
+        
+        movb    (%rsi), %r8b
+        movb    %r8b,  (%rdi)
+        
+        add     $1, %rdx # i++ 
+        leaq    1(%rdi), %rdi
+        leaq    1(%rsi), %rsi
+        
+        cmpb    %cl, %dl        # stop mode
+        jbe      .loopCop
+        ret
 
-.invalidInput:
-    movq    $0, %rax
-    movq    $format_invalid, %rdi
-    call    printf
-    popq    %rax
-    ret
+    .invalidInput:
+        movq    $0, %rax
+        movq    $format_invalid, %rdi
+        call    printf
+        popq    %rax
+        ret

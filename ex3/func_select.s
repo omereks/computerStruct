@@ -278,7 +278,7 @@ run_func:	# the main function:
     movq    $0, %rax
     call    scanf
     movq    -16(%rbp), %rcx
-
+    add     $16, %rsp
     # send to pstrijcpy
     movq    %r15, %rdi  # arg 1
     movq    %r14, %rsi  # arg 2
@@ -286,7 +286,6 @@ run_func:	# the main function:
     movq    $0, %rax
     call    pstrijcmp  
     
-  ###############################################################################################################
     # builf print "compare result: %d\n"
     movq    $format55, %rdi
     movq    %rax, %rsi 

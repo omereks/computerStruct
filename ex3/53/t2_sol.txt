@@ -1,0 +1,3 @@
+invalid input!
+length: 5, string: hello
+length: 5, string: world

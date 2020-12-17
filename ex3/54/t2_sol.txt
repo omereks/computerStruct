@@ -1,0 +1,2 @@
+length: 5, string: HELLO
+length: 5, string: hello

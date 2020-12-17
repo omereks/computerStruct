@@ -1,12 +1,10 @@
-.data
+#   312350192 Omer Eckstein
 
+.data
 .section	.rodata	
 format_du:       .string "%hhu"
 format_s:       .string "%s"
 format_d:       .string "%d"
-
-
-
 
 
 # Pstring hello = '5' , 'h' , 'e' , 'l' , 'l' , 'o' , '/0'
@@ -24,8 +22,6 @@ run_main:
 
     # first Pstring
     sub     $256, %rsp
-    pushq   %r14              #temp registers for pointers to pstr
-    pushq   %r15
     # get first size of pstring1
     movq    $0, %rax          
     movq    $format_d, %rdi
@@ -62,16 +58,13 @@ run_main:
     call    scanf
     
 
-    # build run_func
+    # build and run_func
     movq    (%rsp), %rdi   # user option
     movq    %r14, %rsi     # Pstring 1
     movq    %r15, %rdx     # Pstring 2     
     call    run_func
 
-    popq    %r15               #free the stack space
-    popq    %r14
 
-    
     movq    %rbp, %rsp
     popq    %rbp
     ret

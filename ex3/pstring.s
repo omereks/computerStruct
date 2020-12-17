@@ -1,7 +1,6 @@
+#   312350192 Omer Eckstein
 
 .data
-
-
 .section	.rodata	
 format_dd:       .string "%hhu"
 format_c:       .string "%c"
@@ -9,16 +8,13 @@ format_invalid:  .string "invalid input!\n"
 format_ok:       .string "ok"               # ###################################
 
 
-
 .text	                    # the beginnig of the code
-.globl	pstrlen	        # the label "pstrlen" is used to state the initial point of this program
-.type	pstrlen, @function	# the label "pstrlen" representing the beginning of a function
-
-pstrlen:
-    
-    movq    (%rdi),%rcx
-    movb    %cl, %al
-    
+.globl	pstrlen	            
+.type	pstrlen, @function	
+pstrlen:                    # return the length of a pstring
+     # rdi *pstring
+    movq    (%rdi),%rcx     # get to the address
+    movb    %cl, %al        # get the first bit to return
     ret
 
 
@@ -28,10 +24,10 @@ pstrlen:
 
 
 
-.globl	replaceChar	        # the label "replaceChar" is used to state the initial point of this program
-.type	replaceChar, @function	# the label "replaceChar" representing the beginning of a function
+.globl	replaceChar	        
+.type	replaceChar, @function	
 
-replaceChar:
+replaceChar:                # get a pstring and 2 chars and replace betwin 2 chars
     # rdi *pstring
     # rsi char old
     # rdx char new
@@ -47,16 +43,16 @@ replaceChar:
     ret
     
     .Loop:
-        cmpq    $0, %r12        # stop mode
+        cmpq    $0, %r12            # stop mode
         je      .LoopDone
         
-        leaq    1(%r9) , %r9    # getting the next char
+        leaq    1(%r9) , %r9        # getting the next char
         movq    (%r9), %r13
     
-        cmpb    %r13b, -8(%rbp) # check if nescesry to swap chars
+        cmpb    %r13b, -8(%rbp)     # check if nescesry to swap chars
         je      .changeChar
     .Loopb:
-        leaq     -1(%r12), %r12 # i-- 
+        leaq     -1(%r12), %r12     # i-- 
         jmp     .Loop
 
     .changeChar:
@@ -65,7 +61,7 @@ replaceChar:
         jmp     .Loopb
 
     .LoopDone:
-        movq    %r9, %rax  
+        movq    %r9, %rax           # get out the loop 
         ret
 
 
@@ -73,10 +69,10 @@ replaceChar:
 
 
 
-.globl	pstrijcpy	        # the label "replaceChar" is used to state the initial point of this program
-.type	pstrijcpy, @function	# the label "replaceChar" representing the beginning of a function
+.globl	pstrijcpy	        
+.type	pstrijcpy, @function	
 
-pstrijcpy:
+pstrijcpy:                          # get 2 pstring and 2 indexs and switch the indexs betwin the 2 pstrings
     # pstring 1 in rdi
     # pstring 2 in rsi
     # i in rdx edx
@@ -85,56 +81,54 @@ pstrijcpy:
     pushq   %rdi
     
     # check when invalid input
-    # j >src.length
-    cmpb    %cl, (%rsi)
+    cmpb    %cl, (%rsi)         # j >src.length
     jbe     .invalidInput
-    # j >dst.length
-    cmpb    %cl, (%rdi)
+    
+    cmpb    %cl, (%rdi)         # j >dst.length
     jbe     .invalidInput
-    # i <= 0
-    cmpb    $0, %dl
+    
+    cmpb    $0, %dl             # i <= 0
     jb     .invalidInput
-    # j <= 0
-    cmpb    $0, %cl
+    
+    cmpb    $0, %cl             # j <= 0
     jb     .invalidInput
-    # i>j
-    cmpb    %dl, %cl
+    
+    cmpb    %dl, %cl            # i>j
     jb     .invalidInput
     
 
     popq    %rdi
     movq    %rdi, %rax
 
-    # set the pointer to i
-    leaq 1(%rdi,%rdx), %rdi     #move dst and src pstr to i'th place
+    leaq 1(%rdi,%rdx), %rdi     # set the pointer to i
     leaq 1(%rsi,%rdx), %rsi
-    
-    .loopCop:
+    .loopCop:                   # start loop
         
         movb    (%rsi), %r8b
         movb    %r8b,  (%rdi)
         
-        add     $1, %rdx # i++ 
+        add     $1, %rdx        # i++
+
         leaq    1(%rdi), %rdi
         leaq    1(%rsi), %rsi
         
-        cmpb    %cl, %dl        # stop mode
+        cmpb    %cl, %dl        # stop condition
         jbe      .loopCop
         ret
 
     .invalidInput:
         movq    $0, %rax
         movq    $format_invalid, %rdi
-        call    printf
-        popq    %rax
+        call    printf          # printing
+        popq    %rax            # return value
         ret
 
 
 
-.globl	swapCase	        # the label "swapCase" is used to state the initial point of this program
-.type	swapCase, @function	# the label "swapCase" representing the beginning of a function
+.globl	swapCase	        
+.type	swapCase, @function	
 
-swapCase:
+swapCase:                       # swap from capital letter into small letter and backwords
     # pstring in rdi
     pushq   %rdi
     
@@ -150,17 +144,16 @@ swapCase:
         
         leaq    1(%r9) , %r9    # getting the next char
         movq    (%r9), %r13
-    # capital_letter:   %r13b, (%r9)
-        cmpb $65, (%r9)        # less then 65
+        cmpb $65, (%r9)         # less then 65
         jl .LoopbSwapEnd
-        cmpb $90, (%r9)        # more then 90
+        cmpb $90, (%r9)         # more then 90
         ja .small_letter
         # Else
         addb $32, (%r9)
         jmp .LoopbSwapEnd
     
     .small_letter:
-        cmpb $97, (%r9)        # less then 97
+        cmpb $97, (%r9)         # less then 97
         jl .LoopbSwapEnd
         cmpb $122, (%r9)        # more then 122
         ja .LoopbSwapEnd
@@ -170,9 +163,9 @@ swapCase:
 
     .LoopbSwapEnd:
         leaq     -1(%r12), %r12 # i-- 
-        jmp     .LoopSwap
+        jmp     .LoopSwap       # continue to the next char
 
-    .LoopDoneSwap:
+    .LoopDoneSwap:              # rxit loop
         popq    %rdi
         movq    %rdi, %rax  
         ret
@@ -181,10 +174,10 @@ swapCase:
 
 
 
-.globl	pstrijcmp	        # the label "pstrijcmp" is used to state the initial point of this program
-.type	pstrijcmp, @function	# the label "pstrijcmp" representing the beginning of a function
+.globl	pstrijcmp	        
+.type	pstrijcmp, @function	
 
-pstrijcmp:
+pstrijcmp:                          # comparing betwin 2 pstrings
     # pstring 1 in rdi
     # pstring 2 in rsi
     # i in rdx edx
@@ -193,38 +186,37 @@ pstrijcmp:
     pushq   %rdi
 
     # check when invalid input
-    # j >src.length
-    cmpb    %cl, (%rsi)
+    cmpb    %cl, (%rsi)             # j >src.length
     jbe     .invalidInputCopy
-    # j >dst.length
-    cmpb    %cl, (%rdi)
+    
+    cmpb    %cl, (%rdi)             # j >dst.length
     jbe     .invalidInputCopy
-    # i <= 0
-    cmpb    $0, %dl
+    
+    cmpb    $0, %dl                 # i <= 0
     jb     .invalidInputCopy
-    # j <= 0
-    cmpb    $0, %cl
+    
+    cmpb    $0, %cl                 # j <= 0
     jb     .invalidInputCopy
-    # i>j
-    cmpb    %dl, %cl
+    
+    cmpb    %dl, %cl                # i>j
     jb     .invalidInputCopy
     
 
     popq    %rdi
     movq    %rdi, %rax
     
-    # set the pointer to i
-    leaq 1(%rdi,%rdx), %rdi     #move dst and src pstr to i'th place
+    
+    leaq 1(%rdi,%rdx), %rdi     # set the pointer to i
     leaq 1(%rsi,%rdx), %rsi
     
     .loopCopCmp:
-        movb (%rsi), %r8b       #cmp pstr2[i] with pstr1[i]
-        cmpb (%rdi), %r8b       
+        movb (%rsi), %r8b       
+        cmpb (%rdi), %r8b       # check if char i in psring 1 an pstring 2 are big or small
         jb .pst1Big
         ja .pst2Big
         
                 
-        add     $1, %rdx # i++ 
+        add     $1, %rdx        # i++ 
         leaq    1(%rdi), %rdi
         leaq    1(%rsi), %rsi
         
@@ -236,19 +228,19 @@ pstrijcmp:
     
     .pst1Big:
         movq    $0, %rax
-        movq    $1, %rax
+        movq    $1, %rax        # ret 1
         ret
     .pst2Big:
         movq    $0, %rax
-        movq    $-1, %rax
+        movq    $-1, %rax       # ret -1
         ret
 
     .invalidInputCopy:
         popq    %rdi
         movq    $0, %rax
         movq    $format_invalid, %rdi
-        call    printf
+        call    printf          # printing
         movq    $0, %rax
-        movq    $-2, %rax
+        movq    $-2, %rax       # ret -2
         ret
 

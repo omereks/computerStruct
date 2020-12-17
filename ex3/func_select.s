@@ -1,6 +1,6 @@
+#   312350192 Omer Eckstein
+
 .data
-
-
 .section	.rodata	
 format_s:       .string "%s"
 format_d:       .string "%hhu"
@@ -13,7 +13,7 @@ format5354:	    .string	"length: %d, string: %s\n"
 format55:	    .string	"compare result: %d\n"
 
 .align 8
-.Jtable:
+.Jtable:            # Jump table switch case
     .quad   .J50    # 50/60
     .quad   .Jin    # 51 invalid
     .quad   .J52    # 52  
@@ -26,42 +26,30 @@ format55:	    .string	"compare result: %d\n"
     .quad   .Jin    # 59 invalid
     .quad   .J50    # 50/60
 
-	########
+	
 
 
-.text	                    # the beginnig of the code
-.globl	run_func	        # the label "main" is used to state the initial point of this program
-.type	run_func, @function	# the label "main" representing the beginning of a function
+.text	                    
+.globl	run_func	        
+.type	run_func, @function	
 
 
-run_func:	# the main function:
+run_func:	            # the main function:
 	pushq	%rbp		# save the old frame pointer
 	movq	%rsp, %rbp	# create the new frame pointer
-	
-	
-	
 
-	# rdi is thr option number 50/60 52 53 54 55 else
-    # rsi is pstring1
-    # rdx is pstring2
-
-    
+	# rdi needs to be the option number 50/60 52 53 54 55 else
+    # rsi needs to be pstring1
+    # rdx needs to be pstring2
 
     subq    $50, %rdi   # rdi = rdi -50  -> getting [0,10]
     cmpl    $10, %edi
     ja      .Jin
     jmp     *.Jtable(,%edi,8)
     
-    movq    %rdi, %rsi
-    movq    $format_dd, %rdi
-    movq    $0, %rax
-    call    printf
     movq    %rbp, %rsp
     popq    %rbp
-    leave
-    ret
-	
-	ret			# return to caller function (OS).		
+	ret			        # return to caller function (OS).		
 
 
 
@@ -94,12 +82,12 @@ run_func:	# the main function:
     movq    %rsi, %r14      # kepp pstring1
   
     sub     $16, %rsp
-
+    # scanning
     movq    $format_c, %rdi
     leaq    -8(%rbp), %rsi
     movq    $0, %rax
     call    scanf           
-  
+    
     movq    $format_c, %rdi
     leaq    -8(%rbp), %rsi
     movq    $0, %rax
@@ -116,23 +104,25 @@ run_func:	# the main function:
     call    scanf           
      
     # build replace pstring1
-    movq    %r14, %rdi      # arg 1 pstring 1     
-    movq    -8(%rbp), %rsi  # arg 2 old char
-    movq    -16(%rbp), %rdx  # new char arg3
+    movq    %r14, %rdi          # arg 1 pstring 1     
+    movq    -8(%rbp), %rsi      # arg 2 old char
+    movq    -16(%rbp), %rdx     # new char arg3
     movq    $0, %rax
     call    replaceChar
 
     # build replace pstring1
-    movq    %r15, %rdi      # arg 1 pstring 2     
-    movq    -8(%rbp), %rsi  # arg 2 old char
-    movq    -16(%rbp), %rdx  # new char arg3
+    movq    %r15, %rdi          # arg 1 pstring 2     
+    movq    -8(%rbp), %rsi      # arg 2 old char
+    movq    -16(%rbp), %rdx     # new char arg3
     movq    $0, %rax
     call    replaceChar
 
     # print "old char: %c,new char: %c, first string: %s, second string: %s\n"
-    movq    $format52, %rdi     # string
+    movq    $format52, %rdi         # string
     movq    -8(%rbp), %rsi          # old char
-    movq    -16(%rbp), %rdx              # new char
+    movq    -16(%rbp), %rdx         # new char
+    add     $1, %r14                # skip the length
+    add     $1, %r15                # skip the length
     movq    %r14, %rcx              # first string
     movq    %r15, %r8               # second string
     movq    $0, %rax
@@ -184,8 +174,9 @@ run_func:	# the main function:
     movq    %rax,%rsi  
     
     # buildprint1   "length: %d, string: %s\n"
-    movq    $format5354, %rdi
-    movq    %r15, %rdx
+    movq    $format5354, %rdi       # arg 1
+    add     $1, %r15                # skip the length
+    movq    %r15, %rdx              # arg 3 - pstring
     movq    $0, %rax            
     call printf
 
@@ -197,10 +188,12 @@ run_func:	# the main function:
     movq    %rax,%rsi
 
     # buildprint2   "length: %d, string: %s\n"
-    movq    $format5354, %rdi
-    movq    %r14, %rdx
+    movq    $format5354, %rdi       # arg 1
+    add     $1, %r14                # skip the length
+    movq    %r14, %rdx              # arg 3 pstring
     movq    $0, %rax            
     call printf
+    
     movq    %rbp, %rsp
     popq    %rbp
     leave
@@ -210,8 +203,9 @@ run_func:	# the main function:
     
 
 .J54:    # 54
-    pushq   %rdx        # pstring 2
+    pushq   %rdx            # pstring 2
     pushq   %rsi
+
     # getting pstring 1 length
     movq    %rsi, %rdi          
     movq    $0, %rax            
@@ -219,14 +213,15 @@ run_func:	# the main function:
     movq    %rax,%r15       # arg2 for printing
 
     movq    (%rsp), %rdi
-    movq    $0,   %rax
+    movq    $0, %rax
     call    swapCase
-    movq    %rax,   %r14    # arg3 for printing
+    movq    %rax, %r14      # arg3 for printing
 
     # buildprint1   "length: %d, string: %s\n"
     movq    $format5354, %rdi
-    movq    %r15,   %rsi
-    movq    %r14,   %rdx
+    movq    %r15, %rsi      # arg 2 the lenth
+    add     $1, %r14        # skip the length
+    movq    %r14, %rdx
     call printf
     popq    %rsi
 
@@ -245,8 +240,9 @@ run_func:	# the main function:
 
     # buildprint1   "length: %d, string: %s\n"
     movq    $format5354, %rdi
-    movq    %r15,   %rsi
-    movq    %r14,   %rdx
+    movq    %r15, %rsi      # arg 2 the lenth
+    add     $1, %r14        # skip the length
+    movq    %r14, %rdx
     call printf
     popq    %rsi
 
@@ -286,7 +282,7 @@ run_func:	# the main function:
     movq    $0, %rax
     call    pstrijcmp  
     
-    # builf print "compare result: %d\n"
+    # build print "compare result: %d\n"
     movq    $format55, %rdi
     movq    %rax, %rsi 
     call    printf
@@ -296,7 +292,7 @@ run_func:	# the main function:
     ret
 
 
-.Jin:    # 51 invalid default
+.Jin:    #  invalid default
     movq    $formatInvalid, %rdi
     movq	$0, %rax
     call	printf

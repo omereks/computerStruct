@@ -1,0 +1,10 @@
+{
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "files.associations": {
+        "random": "c",
+        "limits": "c",
+        "array": "c",
+        "string": "c",
+        "string_view": "c"
+    }
+}

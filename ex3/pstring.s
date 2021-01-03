@@ -3,7 +3,7 @@
 .data
 .section	.rodata	
 format_dd:       .string "%hhu"
-format_c:       .string "%c"
+format_c:       .string " %c"
 format_invalid:  .string "invalid input!\n"
 format_ok:       .string "ok"               # ###################################
 
@@ -42,27 +42,27 @@ replaceChar:                # get a pstring and 2 chars and replace betwin 2 cha
     jmp     .Loop
     ret
     
-    .Loop:
-        cmpq    $0, %r12            # stop mode
-        je      .LoopDone
-        
-        leaq    1(%r9) , %r9        # getting the next char
-        movq    (%r9), %r13
+.Loop:
+    cmpq    $0, %r12            # stop mode
+    je      .LoopDone
     
-        cmpb    %r13b, -8(%rbp)     # check if nescesry to swap chars
-        je      .changeChar
-    .Loopb:
-        leaq     -1(%r12), %r12     # i-- 
-        jmp     .Loop
+    leaq    1(%r9) , %r9        # getting the next char
+    movq    (%r9), %r13
 
-    .changeChar:
-        movb    -16(%rbp), %r13b    # swithcing the chars
-        movb    %r13b, (%r9)
-        jmp     .Loopb
+    cmpb    %r13b, -8(%rbp)     # check if nescesry to swap chars
+    je      .changeChar
+.Loopb:
+    leaq     -1(%r12), %r12     # i-- 
+    jmp     .Loop
 
-    .LoopDone:
-        movq    %r9, %rax           # get out the loop 
-        ret
+.changeChar:
+    movb    -16(%rbp), %r13b    # swithcing the chars
+    movb    %r13b, (%r9)
+    jmp     .Loopb
+
+.LoopDone:
+    movq    %r9, %rax           # get out the loop 
+    ret
 
 
 
@@ -79,7 +79,10 @@ pstrijcpy:                          # get 2 pstring and 2 indexs and switch the 
     # j in rcx ecx
     
     pushq   %rdi
-    
+    pushq   %rsi
+    pushq   %rdx
+    pushq   %rcx
+
     # check when invalid input
     cmpb    %cl, (%rsi)         # j >src.length
     jbe     .invalidInput
@@ -96,32 +99,36 @@ pstrijcpy:                          # get 2 pstring and 2 indexs and switch the 
     cmpb    %dl, %cl            # i>j
     jb     .invalidInput
     
-
+    popq   %rcx
+    popq   %rdx
+    popq    %rsi
     popq    %rdi
     movq    %rdi, %rax
 
-    leaq 1(%rdi,%rdx), %rdi     # set the pointer to i
-    leaq 1(%rsi,%rdx), %rsi
-    .loopCop:                   # start loop
-        
-        movb    (%rsi), %r8b
-        movb    %r8b,  (%rdi)
-        
-        add     $1, %rdx        # i++
 
-        leaq    1(%rdi), %rdi
-        leaq    1(%rsi), %rsi
-        
-        cmpb    %cl, %dl        # stop condition
-        jbe      .loopCop
-        ret
+    
+    leaq    1(%rdi,%rdx), %rdi     # set the pointer to i
+    leaq    1(%rsi,%rdx), %rsi
+    jmp     .loopCop
+.loopCop:                   # start loop
 
-    .invalidInput:
-        movq    $0, %rax
-        movq    $format_invalid, %rdi
-        call    printf          # printing
-        popq    %rax            # return value
-        ret
+    movb (%rsi), %r8b       
+    movb %r8b,(%rdi)
+    add     $1, %rdx        # i++
+
+    leaq    1(%rdi), %rdi
+    leaq    1(%rsi), %rsi
+    
+    cmpb    %cl, %dl        # stop condition
+    jbe      .loopCop
+    ret
+
+.invalidInput:
+    movq    $0, %rax
+    movq    $format_invalid, %rdi
+    call    printf          # printing
+    popq    %rax            # return value
+    ret
 
 
 
@@ -131,44 +138,44 @@ pstrijcpy:                          # get 2 pstring and 2 indexs and switch the 
 swapCase:                       # swap from capital letter into small letter and backwords
     # pstring in rdi
     pushq   %rdi
-    
+    movq    %rdi, %r14
     movq    %rdi, %r9       # keeping the pointer
     movq    $0, %rax
     call    pstrlen
     movq    $0, %r12
     movq    %rax, %r12          # r12 is now the number of letters in the loop  
 
-    .LoopSwap:
-        cmpq    $0, %r12        # stop mode
-        je      .LoopDoneSwap
-        
-        leaq    1(%r9) , %r9    # getting the next char
-        movq    (%r9), %r13
-        cmpb $65, (%r9)         # less then 65
-        jl .LoopbSwapEnd
-        cmpb $90, (%r9)         # more then 90
-        ja .small_letter
-        # Else
-        addb $32, (%r9)
-        jmp .LoopbSwapEnd
+.LoopSwap:
+    cmpq    $0, %r12        # stop mode
+    je      .LoopDoneSwap
     
-    .small_letter:
-        cmpb $97, (%r9)         # less then 97
-        jl .LoopbSwapEnd
-        cmpb $122, (%r9)        # more then 122
-        ja .LoopbSwapEnd
-        # Else
-        subb $32, (%r9)
-        jmp .LoopbSwapEnd
+    leaq    1(%r9) , %r9    # getting the next char
+    movq    (%r9), %r13
+    cmpb $65, (%r9)         # less then 65
+    jl .LoopbSwapEnd
+    cmpb $90, (%r9)         # more then 90
+    ja .small_letter
+    # Else
+    addb $32, (%r9)
+    jmp .LoopbSwapEnd
 
-    .LoopbSwapEnd:
-        leaq     -1(%r12), %r12 # i-- 
-        jmp     .LoopSwap       # continue to the next char
+.small_letter:
+    cmpb $97, (%r9)         # less then 97
+    jl .LoopbSwapEnd
+    cmpb $122, (%r9)        # more then 122
+    ja .LoopbSwapEnd
+    # Else
+    subb $32, (%r9)
+    jmp .LoopbSwapEnd
 
-    .LoopDoneSwap:              # rxit loop
-        popq    %rdi
-        movq    %rdi, %rax  
-        ret
+.LoopbSwapEnd:
+    leaq     -1(%r12), %r12 # i-- 
+    jmp     .LoopSwap       # continue to the next char
+
+.LoopDoneSwap:              # rxit loop
+    popq    %rdi
+    movq    %r14, %rax  
+    ret
 
 
 
@@ -209,38 +216,38 @@ pstrijcmp:                          # comparing betwin 2 pstrings
     leaq 1(%rdi,%rdx), %rdi     # set the pointer to i
     leaq 1(%rsi,%rdx), %rsi
     
-    .loopCopCmp:
-        movb (%rsi), %r8b       
-        cmpb (%rdi), %r8b       # check if char i in psring 1 an pstring 2 are big or small
-        jb .pst1Big
-        ja .pst2Big
-        
-                
-        add     $1, %rdx        # i++ 
-        leaq    1(%rdi), %rdi
-        leaq    1(%rsi), %rsi
-        
-        cmpb    %cl, %dl        # stop mode
-        jbe      .loopCopCmp
-        movq    $0, %rax
-        ret
+.loopCopCmp:
+    movb (%rsi), %r8b       
+    cmpb (%rdi), %r8b       # check if char i in psring 1 an pstring 2 are big or small
+    jb .pst1Big
+    ja .pst2Big
     
+            
+    add     $1, %rdx        # i++ 
+    leaq    1(%rdi), %rdi
+    leaq    1(%rsi), %rsi
     
-    .pst1Big:
-        movq    $0, %rax
-        movq    $1, %rax        # ret 1
-        ret
-    .pst2Big:
-        movq    $0, %rax
-        movq    $-1, %rax       # ret -1
-        ret
+    cmpb    %cl, %dl        # stop mode
+    jbe      .loopCopCmp
+    movq    $0, %rax
+    ret
 
-    .invalidInputCopy:
-        popq    %rdi
-        movq    $0, %rax
-        movq    $format_invalid, %rdi
-        call    printf          # printing
-        movq    $0, %rax
-        movq    $-2, %rax       # ret -2
-        ret
+
+.pst1Big:
+    movq    $0, %rax
+    movq    $1, %rax        # ret 1
+    ret
+.pst2Big:
+    movq    $0, %rax
+    movq    $-1, %rax       # ret -1
+    ret
+
+.invalidInputCopy:
+    popq    %rdi
+    movq    $0, %rax
+    movq    $format_invalid, %rdi
+    call    printf          # printing
+    movq    $0, %rax
+    movq    $-2, %rax       # ret -2
+    ret
 

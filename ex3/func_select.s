@@ -73,7 +73,6 @@ run_func:	            # the main function:
     call   printf
     movq    %rbp, %rsp
     popq    %rbp
-    leave
     ret
 
 
@@ -131,7 +130,6 @@ run_func:	            # the main function:
     add     $16, %rsp
     movq    %rbp, %rsp
     popq    %rbp
-    leave
     ret
 
 
@@ -162,6 +160,7 @@ run_func:	            # the main function:
     # send to pstrijcpy
     movq    %r15, %rdi  # arg 1
     movq    %r14, %rsi  # arg 2
+    movq    $0,%rdx
     movb    %r13b, %dl
     movq    $0, %rax
     call    pstrijcpy
@@ -196,7 +195,6 @@ run_func:	            # the main function:
     
     movq    %rbp, %rsp
     popq    %rbp
-    leave
     ret
 
      
@@ -204,7 +202,7 @@ run_func:	            # the main function:
 
 .J54:    # 54
     pushq   %rdx            # pstring 2
-    pushq   %rsi
+    pushq   %rsi            # pstring 2
 
     # getting pstring 1 length
     movq    %rsi, %rdi          
@@ -212,7 +210,7 @@ run_func:	            # the main function:
     call    pstrlen     
     movq    %rax,%r15       # arg2 for printing
 
-    movq    (%rsp), %rdi
+    movq    %rsi, %rdi
     movq    $0, %rax
     call    swapCase
     movq    %rax, %r14      # arg3 for printing
@@ -220,8 +218,10 @@ run_func:	            # the main function:
     # buildprint1   "length: %d, string: %s\n"
     movq    $format5354, %rdi
     movq    %r15, %rsi      # arg 2 the lenth
-    add     $1, %r14        # skip the length
+    addq     $1, %r14        # skip the length
+    movq    $0, %rdx
     movq    %r14, %rdx
+    movq    $0, %rax
     call printf
     popq    %rsi
 
@@ -243,12 +243,12 @@ run_func:	            # the main function:
     movq    %r15, %rsi      # arg 2 the lenth
     add     $1, %r14        # skip the length
     movq    %r14, %rdx
+    movq    $0, %rax
     call printf
     popq    %rsi
 
     movq    %rbp, %rsp
     popq    %rbp
-    leave
     ret
     
 
@@ -278,6 +278,7 @@ run_func:	            # the main function:
     # send to pstrijcpy
     movq    %r15, %rdi  # arg 1
     movq    %r14, %rsi  # arg 2
+    movq    $0,%rdx
     movb    %r13b,%dl
     movq    $0, %rax
     call    pstrijcmp  
@@ -285,10 +286,10 @@ run_func:	            # the main function:
     # build print "compare result: %d\n"
     movq    $format55, %rdi
     movq    %rax, %rsi 
+    movq    $0, %rax
     call    printf
     movq    %rbp, %rsp
     popq    %rbp
-    leave
     ret
 
 
@@ -298,5 +299,4 @@ run_func:	            # the main function:
     call	printf
     movq    %rbp, %rsp
     popq    %rbp
-    leave
     ret

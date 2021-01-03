@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/omer/BIU/ComputerStruct/ex5/build",
+  "command": "/bin/gcc-9   -g   -o CMakeFiles/ex5.dir/myfunction.c.o   -c /home/omer/BIU/ComputerStruct/ex5/myfunction.c",
+  "file": "/home/omer/BIU/ComputerStruct/ex5/myfunction.c"
+}
+]
